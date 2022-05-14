@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     EditText display;
     Button button1, button2, button3, button4, button5, button6, button7, button8, button9, button0, buttonDec, buttonEqual, buttonPlus, buttonMinus, buttonMul, buttonDiv;
 
-    String nums = "";
+    public static String nums = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +68,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-
-//        Log.d("debug", String.valueOf(view.getId()));
 
         switch (view.getId()) {
             case R.id.button1:
@@ -128,57 +126,124 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.buttonPlus:
+                if (nums.equals("")) {
+                    return;
+                }
                 nums = nums + "+";
                 display.setText(nums);
                 break;
 
             case R.id.buttonMinus:
+                if (nums.equals("")) {
+                    return;
+                }
                 nums = nums + "-";
                 display.setText(nums);
                 break;
 
             case R.id.buttonMultiplication:
+                if (nums.equals("")) {
+                    return;
+                }
                 nums = nums + "*";
                 display.setText(nums);
                 break;
 
             case R.id.buttonDivision:
+                if (nums.equals("")) {
+                    return;
+                }
                 nums = nums + "/";
                 display.setText(nums);
                 break;
 
             case R.id.buttonEqual:
 
-               String[] _nums = nums.split("(?<=[\\d.])(?=[^\\d.])|(?<=[^\\d.])(?=[\\d.])");
+                String validatedSequence = validateSequence();
 
-               Log.d("debug", Arrays.toString(_nums));
+                String[] _nums = validatedSequence.split("(?<=[\\d.])(?=[^\\d.])|(?<=[^\\d.])(?=[\\d.])");
 
-               double res = calculate(_nums);
+                if (_nums.length == 1) {
+                    return;
+                }
 
-               display.setText(String.valueOf(res));
+                double res = calculate(_nums);
 
-               break;
+                display.setText(String.valueOf(res));
+
+                nums = "";
+
+                validatedSequence = "";
+
+                break;
         }
     }
 
-    static double calculate(String[] _nums) {
-        int i=0;
+    private static double calculate(String[] _nums) {
 
+        int i = 0;
         double res = 0.0;
 
-        while(i< _nums.length-1) {
+        while (i < _nums.length - 1) {
 
-            Log.d("debug", "test");
+            if (_nums[i + 1].equals("+")) {
 
-            if (_nums[i+1].equals("+")) {
+                if (res > 0) {
 
-              res = Double.parseDouble(_nums[i]) + Double.parseDouble(_nums[i+2]);
+                    res = res + Double.parseDouble(_nums[i + 2]);
+                } else {
+                    res = Double.parseDouble(_nums[i]) + Double.parseDouble(_nums[i + 2]);
+                }
 
+                i = i + 2;
+            } else if (_nums[i + 1].equals("-")) {
+
+                if (res > 0) {
+
+                    res = res - Double.parseDouble(_nums[i + 2]);
+                } else {
+                    res = Double.parseDouble(_nums[i]) - Double.parseDouble(_nums[i + 2]);
+                }
+
+                i = i + 2;
+            } else if (_nums[i + 1].equals("*")) {
+
+                if (res > 0) {
+
+                    res = res * Double.parseDouble(_nums[i + 2]);
+                } else {
+                    res = Double.parseDouble(_nums[i]) * Double.parseDouble(_nums[i + 2]);
+                }
+
+                i = i + 2;
+            } else if (_nums[i + 1].equals("/")) {
+
+                if (res > 0) {
+
+                    res = res * Double.parseDouble(_nums[i + 2]);
+                } else {
+                    res = Double.parseDouble(_nums[i]) * Double.parseDouble(_nums[i + 2]);
+                }
+
+                i = i + 2;
             }
-            break;
 
         }
 
         return res;
+    }
+
+
+    private static String validateSequence() {
+
+        char lastChar = nums.charAt(nums.length() - 1);
+
+        if (lastChar == '+' || lastChar == '-' || lastChar == '*' || lastChar == '/') {
+            String newNums = nums.substring(0, nums.length() - 1);
+
+            return newNums;
+        }
+
+        return nums;
     }
 }
